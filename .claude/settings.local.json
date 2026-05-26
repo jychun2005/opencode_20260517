@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "C:\\Users\\ccy2025\\AppData\\Roaming\\npm\\mcpvault.cmd",
+      "args": [
+        "G:\\我的雲端硬碟\\secondbrain"
+      ]
+    }
+  }
+}
