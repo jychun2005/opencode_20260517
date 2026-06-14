@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>國語四年級上學期 複習卷</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f6f0;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --primary: #003C71;
+  --accent: #C41E3A;
+  --correct: #1b8a4b;
+  --wrong: #c41e3a;
+  --muted: #888;
+  --border: #d4c9b8;
+}
+body.dark {
+  --bg: #1a1a2e;
+  --card: #2d2d44;
+  --text: #e8e8f0;
+  --primary: #5b9bd5;
+  --accent: #e06070;
+  --border: #444466;
+  --muted: #999;
+}
+body {
+  font-family: 'Noto Sans TC', 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px;
+  transition: all .3s;
+}
+.container { max-width: 800px; margin: 0 auto; }
+.header {
+  text-align: center; padding: 30px 20px; margin-bottom: 20px;
+  border-bottom: 3px double var(--primary);
+}
+.header h1 { font-size: 1.8em; color: var(--primary); font-weight: 700; }
+.header p { margin-top: 8px; color: var(--muted); }
+.controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+.controls button, .controls .timer {
+  padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--card); color: var(--text); cursor: pointer; font-size: 14px;
+  font-family: inherit; transition: all .2s;
+}
+.controls button:hover { background: var(--primary); color: #fff; }
+.controls .timer { font-weight: 700; min-width: 100px; text-align: center; }
+.info-fields { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center; }
+.info-fields input {
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card); color: var(--text); font-size: 14px; font-family: inherit;
+}
+.question { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); }
+.question h3 { font-size: 1em; margin-bottom: 10px; color: var(--primary); }
+.options { display: flex; flex-direction: column; gap: 6px; }
+.options label {
+  display: block; padding: 8px 12px; border-radius: 8px;
+  border: 1px solid var(--border); cursor: pointer; transition: all .2s;
+}
+.options label:hover { background: rgba(0,60,113,.08); }
+.options input[type="radio"] { margin-right: 8px; }
+.correct { background: #d4edda !important; border-color: var(--correct) !important; }
+.wrong { background: #f8d7da !important; border-color: var(--wrong) !important; }
+.explanation { display: none; margin-top: 10px; padding: 12px; border-radius: 8px; background: rgba(0,0,0,.04); font-size: .9em; line-height: 1.6; }
+.explanation.show { display: block; }
+body.dark .correct { background: #1b4a2b !important; }
+body.dark .wrong { background: #4a1b2b !important; }
+.result-card {
+  display: none; position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+  justify-content: center; align-items: center;
+}
+.result-card.show { display: flex; }
+.result-card .card {
+  background: var(--card); border-radius: 20px; padding: 40px;
+  max-width: 420px; width: 90%; text-align: center;
+}
+.score-ring { width: 140px; height: 140px; margin: 0 auto 16px; }
+.score-ring svg { width: 100%; height: 100%; }
+.score-text { font-size: 2.2em; font-weight: 700; color: var(--primary); }
+.grade-a { color: var(--correct); } .grade-b { color: #e6a817; } .grade-c { color: var(--wrong); }
+@media print {
+  .controls, .info-fields, .result-card, .explanation { display: none !important; }
+  body { background: #fff; padding: 0; }
+  .header { border-bottom: 2px solid #000; }
+  .header h1 { color: #000; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>國語四年級上學期 複習卷</h1>
+    <p>第三課〈秋天的顏色〉</p>
+  </div>
+
+  <div class="controls">
+    <span class="timer" id="timer">40:00</span>
+    <button onclick="toggleTeacherMode()">📖 教師解析</button>
+    <button onclick="toggleTheme()">🌙 深色模式</button>
+    <button onclick="submitExam()">📤 提交答案</button>
+  </div>
+
+  <div class="info-fields">
+    <input id="cls" placeholder="班級"><input id="seat" placeholder="座號"><input id="name" placeholder="姓名">
+  </div>
+</div>
+
+<script>
+const GOOGLE_SCRIPT_URL = '';
+const questions = [
+  { q: '1. 下列哪一個字的注音和「楓」相同？', opts: ['風', '瘋', '封', '逢'], ans: 1 },
+  { q: '2. 「一望無際的稻______」空格應填入？', opts: ['田', '甜', '填', '佃'], ans: 0 },
+  { q: '3. 「美不勝收」的意思是什麼？', opts: ['太美無法收費', '美好事物看不完', '不會被收走', '不值得欣賞'], ans: 1 },
+  { q: '4. 哪個詞最適合形容秋天天空？', opts: ['烏雲密布', '萬里無雲', '狂風暴雨', '電閃雷鳴'], ans: 1 },
+  { q: '5. 「風兒招手」是什麼修辭？', opts: ['譬喻', '擬人', '排比', '設問'], ans: 1 },
+  { q: '6. 「楓葉像蝴蝶」是什麼修辭？', opts: ['擬人', '誇飾', '譬喻', '反問'], ans: 2 },
+  { q: '7. 哪句是排比？', opts: ['風涼涼的，天空藍藍的，稻田金黃的', '這棵樹好高', '小鳥唱歌', '太陽像火球'], ans: 0 },
+  { q: '8. 作者主要在描述什麼？', opts: ['美食', '顏色和景色', '節日', '衣服'], ans: 1 },
+  { q: '9. 楓葉是什麼顏色？', opts: ['綠色', '黃色', '紅色', '紫色'], ans: 2 },
+  { q: '10. 稻田呈現什麼顏色？', opts: ['綠色', '金黃色', '白色', '黑色'], ans: 1 },
+  { q: '11. 作者最後表達什麼心情？', opts: ['討厭秋天', '體會大自然美好', '覺得無聊', '希望冬天快來'], ans: 1 },
+  { q: '12. 哪個不是秋天景色？', opts: ['楓葉紅', '稻田金黃', '雪花飄飄', '天空湛藍'], ans: 2 },
+  { q: '13. 去公園的時間是？', opts: ['週日上午', '週日下午', '週六下午', '平日傍晚'], ans: 1 },
+  { q: '14. 樹葉沙沙作響說明了？', opts: ['樹葉會說話', '風吹樹葉', '有人講話', '住了動物'], ans: 1 },
+  { q: '15. 文章主旨？', opts: ['動物很多', '秋景很美讓人平靜', '小明不喜歡', '沒有人'], ans: 1 },
+];
+
+const explanations = [
+  '解析：楓(ㄈㄥ)與瘋(ㄈㄥ)同音。風(ㄈㄥ)同音不同字，封(ㄈㄥ)同音不同字，逢(ㄈㄥˊ)為第二聲。',
+  '解析：「稻田」是種稻的田地。(B)甜是味道、(C)填是動詞、(D)佃是租種土地的人。',
+  '解析：「美不勝收」指美好的事物太多，來不及欣賞。(A)(C)為字面誤解，(D)與原義相反。',
+  '解析：課文描述秋天天空「湛藍」，萬里無雲最符合。(A)陰天，(C)(D)惡劣天氣。',
+  '解析：將風兒比擬為人，賦予「招手」動作，是擬人法。',
+  '解析：用「像」將楓葉比作蝴蝶，是譬喻修辭。',
+  '解析：(A)三個「……的」結構相同句子連續出現，符合排比定義。',
+  '解析：課文標題與內容皆圍繞秋天的顏色與景色。',
+  '解析：課文描述楓葉為紅色。',
+  '解析：課文明確指出稻田呈現金黃色。',
+  '解析：作者在結尾表達體會大自然美好的心情。',
+  '解析：雪花是冬天景色，文中未描寫。',
+  '解析：文章第一段寫出「星期天的下午」。考查直接擷取訊息。',
+  '解析：描寫風吹樹葉的聲音，並非真有說話能力。考查直接推論。',
+  '解析：全文圍繞秋景之美與小明心情平靜。考查整合解釋。',
+];
+
+let timeLeft = 40 * 60;
+let timerInterval;
+let submitted = false;
+
+function buildExam() {
+  const container = document.querySelector('.container');
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q' + i;
+    div.innerHTML = `<h3>${q.q}</h3><div class="options">${q.opts.map((o, j) =>
+      `<label><input type="radio" name="q${i}" value="${j}" onchange="clearFeedback(${i})">${o}</label>`
+    ).join('')}</div><div class="explanation" id="exp${i}">${explanations[i]}</div>`;
+    container.appendChild(div);
+  });
+}
+buildExam();
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    document.getElementById('timer').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(); }
+  }, 1000);
+}
+startTimer();
+
+function clearFeedback(i) {
+  const q = document.getElementById('q' + i);
+  q.querySelectorAll('label').forEach(l => l.className = '');
+  document.getElementById('exp' + i).classList.remove('show');
+}
+
+function toggleTeacherMode() {
+  const show = document.getElementById('exp0').classList.toggle('show');
+  document.querySelectorAll('.explanation').forEach(e => e.classList.toggle('show', show));
+  if (show) {
+    questions.forEach((q, i) => {
+      const labels = document.querySelectorAll(`#q${i} label`);
+      labels[q.ans].classList.add('correct');
+    });
+  }
+}
+
+function toggleTheme() { document.body.classList.toggle('dark'); }
+
+function submitExam() {
+  if (submitted) return;
+  const cls = document.getElementById('cls').value.trim();
+  const seat = document.getElementById('seat').value.trim();
+  const name = document.getElementById('name').value.trim();
+  if (!cls || !seat || !name) { alert('請填寫班級、座號、姓名！'); return; }
+  submitted = true;
+  clearInterval(timerInterval);
+  const spent = 40 * 60 - timeLeft;
+  let correct = 0;
+  const details = [];
+  questions.forEach((q, i) => {
+    const labels = document.querySelectorAll(`#q${i} label`);
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    const userAns = sel ? parseInt(sel.value) : -1;
+    const isCorrect = userAns === q.ans;
+    if (isCorrect) correct++;
+    details.push({ q: q.q, user: userAns, correct: q.ans, isCorrect });
+    labels.forEach((l, j) => {
+      if (j === q.ans) l.classList.add('correct');
+      else if (j === userAns && j !== q.ans) l.classList.add('wrong');
+    });
+    document.getElementById('exp' + i).classList.add('show');
+  });
+  const score = Math.round((correct / questions.length) * 100);
+  let grade, gradeClass;
+  if (score >= 90) { grade = 'A+'; gradeClass = 'grade-a'; }
+  else if (score >= 80) { grade = 'A'; gradeClass = 'grade-a'; }
+  else if (score >= 70) { grade = 'B'; gradeClass = 'grade-b'; }
+  else { grade = 'C'; gradeClass = 'grade-c'; }
+  const msg = score >= 90 ? '表現優異！繼續保持！' : score >= 70 ? '不錯喔！再加把勁！' : '加油！多練習一定進步！';
+  const pct = score;
+  const r = 60;
+  const circ = 2 * Math.PI * r;
+  const off = circ - (pct / 100) * circ;
+  document.getElementById('resultCard').classList.add('show');
+  document.getElementById('resultScore').innerHTML = `
+    <div class="score-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="${r}" fill="none" stroke="#eee" stroke-width="10"/>
+    <circle cx="70" cy="70" r="${r}" fill="none" stroke="${score >= 70 ? '#1b8a4b' : '#c41e3a'}" stroke-width="10" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round" transform="rotate(-90 70 70)"/></svg></div>
+    <div class="score-text ${gradeClass}">${score}<span style="font-size:.5em;color:var(--muted)">/100</span></div>
+    <p>答對 ${correct}/${questions.length} 題　花費 ${Math.floor(spent/60)}分${spent%60}秒</p>
+    <p style="margin-top:8px;font-size:1.2em;font-weight:700">評等：${grade}</p>
+    <p style="margin-top:4px;color:var(--muted)">${msg}</p>`;
+
+  if (GOOGLE_SCRIPT_URL) {
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'saveReviewExam', studentClass: cls, studentSeat: seat, studentName: name, score, correctCount: correct, timeSpent: spent, details })
+    });
+  }
+}
+</script>
+<div class="result-card" id="resultCard">
+  <div class="card" id="resultScore"></div>
+</div>
+</body>
+</html>
